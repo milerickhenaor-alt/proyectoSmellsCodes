@@ -1,123 +1,152 @@
 package com.company;
 
-/**
- * SMELL: Data Clumps - Parámetros relacionados que deberían ser objetos
- * SMELL: Long Parameter Lists
- * SMELL: Magic Numbers
- */
 public class Calculator {
-    
-    // SMELL: Long Parameter List - 9 parámetros
-    public double calculateComplexBonus(double baseSalary, int yearsWorked, 
-                                        double performanceScore, String department, 
-                                        boolean isManager, int projectsCompleted,
-                                        double customerSatisfaction, boolean hasTeamLeadRole,
-                                        int trainingSessions) {
-        
-        // SMELL: Magic Numbers everywhere
-        double bonus = baseSalary * 0.1;
-        
-        if (yearsWorked >= 5) {
-            bonus += baseSalary * 0.05;
+
+    // ===============================
+    // CONSTANTES (elimina Magic Numbers)
+    // ===============================
+
+    private static final double BASE_BONUS_RATE = 0.10;
+
+    private static final double BONUS_5_YEARS = 0.05;
+    private static final double BONUS_10_YEARS = 0.08;
+    private static final double BONUS_15_YEARS = 0.12;
+
+    private static final double PERFORMANCE_HIGH = 0.15;
+    private static final double PERFORMANCE_MEDIUM = 0.10;
+    private static final double PERFORMANCE_LOW = 0.05;
+
+    private static final double ENGINEERING_MULTIPLIER = 1.20;
+    private static final double SALES_MULTIPLIER = 1.15;
+    private static final double HR_MULTIPLIER = 0.95;
+
+    private static final double MANAGER_BONUS = 0.20;
+    private static final double PROJECTS_HIGH = 0.10;
+    private static final double PROJECTS_MEDIUM = 0.05;
+    private static final double CUSTOMER_SATISFACTION_BONUS = 0.08;
+    private static final double TEAM_LEAD_BONUS = 0.15;
+    private static final double TRAINING_BONUS = 0.05;
+
+    private static final double BASE_TAX_RATE = 0.25;
+    private static final double SENIORITY_TAX_DISCOUNT = 0.02;
+    private static final double HIGH_SALARY_TAX_INCREASE = 0.05;
+    private static final double EXECUTIVE_TAX_INCREASE = 0.10;
+
+
+    // Refactorización: Replace Magic Number with Named Constant:
+
+    public double calculateComplexBonus(BonusData data) {
+
+        double bonus = data.getBaseSalary() * BASE_BONUS_RATE;
+
+        if (data.getYearsWorked() >= 5) {
+            bonus += data.getBaseSalary() * BONUS_5_YEARS;
         }
-        
-        if (yearsWorked >= 10) {
-            bonus += baseSalary * 0.08;
+
+        if (data.getYearsWorked() >= 10) {
+            bonus += data.getBaseSalary() * BONUS_10_YEARS;
         }
-        
-        if (yearsWorked >= 15) {
-            bonus += baseSalary * 0.12;
+
+        if (data.getYearsWorked() >= 15) {
+            bonus += data.getBaseSalary() * BONUS_15_YEARS;
         }
-        
-        if (performanceScore > 4.5) {
-            bonus += baseSalary * 0.15;
-        } else if (performanceScore > 4.0) {
-            bonus += baseSalary * 0.10;
-        } else if (performanceScore > 3.0) {
-            bonus += baseSalary * 0.05;
+
+        if (data.getPerformanceScore() > 4.5) {
+            bonus += data.getBaseSalary() * PERFORMANCE_HIGH;
+        } else if (data.getPerformanceScore() > 4.0) {
+            bonus += data.getBaseSalary() * PERFORMANCE_MEDIUM;
+        } else if (data.getPerformanceScore() > 3.0) {
+            bonus += data.getBaseSalary() * PERFORMANCE_LOW;
         }
-        
-        if (department.equals("Engineering")) {
-            bonus *= 1.2; // Magic Number
-        } else if (department.equals("Sales")) {
-            bonus *= 1.15; // Magic Number
-        } else if (department.equals("HR")) {
-            bonus *= 0.95; // Magic Number
+
+        switch (data.getDepartment()) {
+            case "Engineering":
+                bonus *= ENGINEERING_MULTIPLIER;
+                break;
+            case "Sales":
+                bonus *= SALES_MULTIPLIER;
+                break;
+            case "HR":
+                bonus *= HR_MULTIPLIER;
+                break;
         }
-        
-        if (isManager) {
-            bonus += baseSalary * 0.2; // Magic Number
+
+        if (data.isManager()) {
+            bonus += data.getBaseSalary() * MANAGER_BONUS;
         }
-        
-        if (projectsCompleted >= 10) {
-            bonus += baseSalary * 0.1; // Magic Number
-        } else if (projectsCompleted >= 5) {
-            bonus += baseSalary * 0.05; // Magic Number
+
+        if (data.getProjectsCompleted() >= 10) {
+            bonus += data.getBaseSalary() * PROJECTS_HIGH;
+        } else if (data.getProjectsCompleted() >= 5) {
+            bonus += data.getBaseSalary() * PROJECTS_MEDIUM;
         }
-        
-        if (customerSatisfaction > 4.5) {
-            bonus += baseSalary * 0.08; // Magic Number
+
+        if (data.getCustomerSatisfaction() > 4.5) {
+            bonus += data.getBaseSalary() * CUSTOMER_SATISFACTION_BONUS;
         }
-        
-        if (hasTeamLeadRole) {
-            bonus += baseSalary * 0.15; // Magic Number
+
+        if (data.hasTeamLeadRole()) {
+            bonus += data.getBaseSalary() * TEAM_LEAD_BONUS;
         }
-        
-        if (trainingSessions >= 10) {
-            bonus += baseSalary * 0.05; // Magic Number
+
+        if (data.getTrainingSessions() >= 10) {
+            bonus += data.getBaseSalary() * TRAINING_BONUS;
         }
-        
+
         return bonus;
     }
-    
-    // SMELL: Long Parameter List
-    public double calculateTaxAmount(double salary, int yearsWorked, String department,
-                                     double performanceScore, boolean isManager,
-                                     String country, String state) {
-        // SMELL: Magic Numbers
-        double taxRate = 0.25;
-        
+
+    // ===============================
+    // TAX
+    // ===============================
+
+    public double calculateTaxAmount(double salary, int yearsWorked, String department) {
+
+        double taxRate = BASE_TAX_RATE;
+
         if (yearsWorked >= 10) {
-            taxRate -= 0.02; // Magic Number
+            taxRate -= SENIORITY_TAX_DISCOUNT;
         }
-        
+
         if (salary > 100000) {
-            taxRate += 0.05; // Magic Number
+            taxRate += HIGH_SALARY_TAX_INCREASE;
         }
-        
-        if (department.equals("Executive")) {
-            taxRate += 0.10; // Magic Number
+
+        if ("Executive".equals(department)) {
+            taxRate += EXECUTIVE_TAX_INCREASE;
         }
-        
-        double tax = salary * taxRate;
-        return tax;
+
+        return salary * taxRate;
     }
-    
-    // SMELL: Tight Coupling - Usa directamente de Employee
-    public double calculateFinalSalary(Employee employee) {
-        double baseSalary = employee.getSalary() * 12;
-        double bonus = calculateComplexBonus(
-            employee.getSalary(),
-            employee.getYearsWorked(),
-            employee.getPerformanceScore(),
-            employee.getDepartment(),
-            false,
-            employee.getProjects().size(),
-            0,
-            false,
-            0
+
+    // ===============================
+    // FINAL SALARY (DESACOPLADO)
+    // ===============================
+
+    public double calculateFinalSalary(SalaryData data) {
+
+        double baseSalary = data.getMonthlySalary() * 12;
+
+        BonusData bonusData = new BonusData(
+                data.getMonthlySalary(),
+                data.getYearsWorked(),
+                data.getPerformanceScore(),
+                data.getDepartment(),
+                false,
+                0,
+                0,
+                false,
+                0
         );
-        
+
+        double bonus = calculateComplexBonus(bonusData);
+
         double tax = calculateTaxAmount(
-            baseSalary,
-            employee.getYearsWorked(),
-            employee.getDepartment(),
-            employee.getPerformanceScore(),
-            false,
-            "USA",
-            ""
+                baseSalary,
+                data.getYearsWorked(),
+                data.getDepartment()
         );
-        
+
         return baseSalary + bonus - tax;
     }
 }

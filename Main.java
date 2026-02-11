@@ -61,7 +61,17 @@ public class Main {
         Calculator calc = new Calculator();
 
         for (Employee emp : employees) {
-            double finalSalary = calc.calculateFinalSalary(emp);
+
+            SalaryData salaryData = new SalaryData(
+                    emp.getSalary(),
+                    emp.getYearsWorked(),
+                    emp.getPerformanceScore(),
+                    emp.getDepartment(),
+                    emp.getProjects().size()
+            );
+
+            double finalSalary = calc.calculateFinalSalary(salaryData);
+
             System.out.println(emp.getFirstName() + " " + emp.getLastName() +
                     " - Final Salary: $" + String.format("%.2f", finalSalary));
         }
